@@ -19,9 +19,8 @@ import { OverviewTasksProgress } from "src/sections/overview/overview-tasks-prog
 import { OverviewTotalCustomers } from "src/sections/overview/overview-total-customers";
 import { OverviewTotalProfit } from "src/sections/overview/overview-total-profit";
 import { OverviewTraffic } from "src/sections/overview/overview-traffic";
-import { useState } from "react";
 import OverviewForm from "src/sections/overview/overview-form";
-import OverviewProfile from "src/sections/overview/overview-profile";
+import { useAuthContext } from "src/contexts/auth-context";
 
 const style = {
   position: "absolute",
@@ -44,6 +43,10 @@ const Page = () => {
   const handleOpen = () => setOpen(true);
   const handleClose = () => setOpen(false);
 
+  const { user } = useAuthContext();
+
+  // console.log(" user details : ", user.email);
+
   return (
     <>
       <Head>
@@ -56,6 +59,7 @@ const Page = () => {
           py: 8,
         }}
       >
+        {/* <Typography>Welcome {user.email} !</Typography> */}
         <Button onClick={handleOpen}>Open modal </Button>
         <Container maxWidth="xl">
           <Grid xs={12} sm={6} lg={3}>
@@ -80,9 +84,15 @@ const Page = () => {
                   overflowY: "auto",
                 }}
               >
-                <CardActions sx={{ justifyContent: "flex-end" }}>
+                <Box
+                  sx={{
+                    display: "flex",
+                    justifyContent: "end",
+                    width: "100%",
+                  }}
+                >
                   <Button onClick={handleClose}>X</Button>
-                </CardActions>
+                </Box>
 
                 <Grid id="modal-modal-description" sx={{ mt: 5 }}>
                   <OverviewForm />

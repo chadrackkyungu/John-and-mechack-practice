@@ -1,17 +1,9 @@
 import React, { useState } from "react";
-import {
-  Box,
-  Button,
-  Card,
-  CardActions,
-  CardContent,
-  Grid,
-  MenuItem,
-  TextField,
-} from "@mui/material";
+import { Box, Button, CardActions, CardContent, Grid, MenuItem, TextField } from "@mui/material";
 import { DatePicker } from "@mui/x-date-pickers";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { dangerMessage, successMessage, warningMessage } from "./../../components/toast";
 
 const OverviewForm = () => {
   const formik = useFormik({
@@ -47,7 +39,7 @@ const OverviewForm = () => {
     }),
 
     onSubmit: async (values, { resetForm }) => {
-      // setLoadBtn(true);
+      setLoadBtn(true);
 
       var requestOptions = {
         method: "POST",
@@ -61,23 +53,23 @@ const OverviewForm = () => {
         .then((response) => response.json())
         .then((result) => {
           console.log("result ", result);
-          // if (result.status === "success") {
-          //   setLoadBtn(false);
-          //   resetForm();
-          //   successMessage(result.message);
-          //   setSuccessMsg(true);
-          // }
-          // if (result.status === "fail") {
-          //   warningMessage(result.message);
-          //   setLoadBtn(false);
-          // }
+          if (result.status === "success") {
+            setLoadBtn(false);
+            //   resetForm();
+            successMessage(result.message);
+            setSuccessMsg(true);
+          }
+          if (result.status === "fail") {
+            warningMessage(result.message);
+            setLoadBtn(false);
+          }
           // if (result.status === "error") {
-          //   dangerMessage(result.data);
-          //   setLoadBtn(false);
+          dangerMessage(result.data);
+          setLoadBtn(false);
           // }
         })
         .catch((error) => {
-          //   setLoadBtn(false);
+          setLoadBtn(false);
           //   dangerMessage(error);
           console.log(" error : ", error);
         });
@@ -94,14 +86,14 @@ const OverviewForm = () => {
     <Grid>
       <Box>
         <CardContent xs={12} sm={6} lg={3}>
-          <form noValidate onSubmit={formik.handleSubmit}>
+          <form onSubmit={formik.handleSubmit}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={4}>
                 <TextField
                   label="Username"
                   fullWidth
                   margin="normal"
-                  value={formData.username}
+                  value={formik.username}
                   onChange={(e) => handleInputChange("username", e.target.value)}
                 />
               </Grid>
@@ -111,7 +103,7 @@ const OverviewForm = () => {
                   label="First Name"
                   fullWidth
                   margin="normal"
-                  value={formData.firstName}
+                  value={formik.firstName}
                   onChange={(e) => handleInputChange("firstName", e.target.value)}
                 />
               </Grid>
@@ -121,7 +113,7 @@ const OverviewForm = () => {
                   label="Last Name"
                   fullWidth
                   margin="normal"
-                  value={formData.lastName}
+                  value={formik.lastName}
                   onChange={(e) => handleInputChange("lastName", e.target.value)}
                 />
               </Grid>
@@ -132,7 +124,7 @@ const OverviewForm = () => {
                   fullWidth
                   margin="normal"
                   select
-                  value={formData.gender}
+                  value={formik.gender}
                   onChange={(e) => handleInputChange("gender", e.target.value)}
                 >
                   <MenuItem value="male">Male</MenuItem>
@@ -147,7 +139,7 @@ const OverviewForm = () => {
                   fullWidth
                   margin="normal"
                   format="MM/dd/yyyy"
-                  value={formData.dateOfBirth}
+                  value={formik.dateOfBirth}
                   onChange={(date) => handleInputChange("dateOfBirth", date)}
                   renderInput={renderInput}
                 />
@@ -158,8 +150,8 @@ const OverviewForm = () => {
                   label="Address"
                   fullWidth
                   margin="normal"
-                  value={formData.lastName}
-                  onChange={(e) => handleInputChange("lastName", e.target.value)}
+                  value={formik.address}
+                  onChange={(e) => handleInputChange("address", e.target.value)}
                 />
               </Grid>
 
@@ -168,7 +160,7 @@ const OverviewForm = () => {
                   label="Employment"
                   fullWidth
                   margin="normal"
-                  value={formData.lastName}
+                  value={formik.lastName}
                   onChange={(e) => handleInputChange("lastName", e.target.value)}
                 />
               </Grid>
@@ -178,7 +170,7 @@ const OverviewForm = () => {
                   label="Education"
                   fullWidth
                   margin="normal"
-                  value={formData.lastName}
+                  value={formik.lastName}
                   onChange={(e) => handleInputChange("lastName", e.target.value)}
                 />
               </Grid>
@@ -188,7 +180,7 @@ const OverviewForm = () => {
                   label="Preferences"
                   fullWidth
                   margin="normal"
-                  value={formData.lastName}
+                  value={formik.lastName}
                   onChange={(e) => handleInputChange("lastName", e.target.value)}
                 />
               </Grid>
@@ -199,7 +191,7 @@ const OverviewForm = () => {
                   fullWidth
                   required
                   margin="normal"
-                  value={formData.lastName}
+                  value={formik.lastName}
                   onChange={(e) => handleInputChange("lastName", e.target.value)}
                 />
               </Grid>
@@ -210,7 +202,7 @@ const OverviewForm = () => {
                   fullWidth
                   margin="normal"
                   format="MM/dd/yyyy"
-                  value={formData.registrationDate}
+                  value={formik.registrationDate}
                   onChange={(date) => handleInputChange("registrationDate", date)}
                   renderInput={renderInput}
                 />

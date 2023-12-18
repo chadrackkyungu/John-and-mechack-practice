@@ -1,7 +1,5 @@
-import { useCallback, useState } from "react";
 import Head from "next/head";
-import NextLink from "next/link";
-import { useRouter } from "next/navigation";
+import { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { dangerMessage, successMessage, warningMessage } from "./../../components/toast";
@@ -10,39 +8,50 @@ import {
   Button,
   IconButton,
   InputAdornment,
-  Link,
   Stack,
-  Tab,
-  Tabs,
   TextField,
   Typography,
 } from "@mui/material";
 import { Layout as AuthLayout } from "src/layouts/auth/layout";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
-import { useAuthContext } from "src/contexts/auth-context";
+
+// Import the email sending functionality
+import { sendPasswordResetEmail } from "./email"; // Adjust the import path as needed
 
 const Page = () => {
-  const { signIn } = useAuthContext();
-  const [loadBtn, setLoadBtn] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
-  const handleTogglePasswordVisibility = () => {
-    setShowPassword((prevShowPassword) => !prevShowPassword);
+  const [showPassword1, setShowPassword1] = useState(false);
+  const [showPassword2, setShowPassword2] = useState(false);
+
+  const handleTogglePasswordVisibility1 = () => {
+    setShowPassword1((prevShowPassword) => !prevShowPassword);
   };
 
-  const router = useRouter();
-  const [method, setMethod] = useState("email");
+  const handleTogglePasswordVisibility2 = () => {
+    setShowPassword2((prevShowPassword) => !prevShowPassword);
+  };
+
+  const [loadBtn, setLoadBtn] = useState(false);
 
   const formik = useFormik({
     initialValues: {
-      email: "",
       password: "",
+      confirmpassword: "",
+      email: "", // Add an email field for the user to enter their email
     },
 
     validationSchema: Yup.object({
-      email: Yup.string().email("Must be a valid email").max(255).required("Email is required"),
-      password: Yup.string().max(255).required("Password is required"),
+      password: Yup.string()
+        .password("Must be a valid email")
+        .max(255)
+        .required("Password is required"),
+      confirmpassword: Yup.string()
+        .password("Must be a valid email")
+        .max(255)
+        .required("Confirm Password is required"),
+      email: Yup.string().email("Must be a valid email").max(255).required("Email is required"), // Add email validation
     }),
 
+    // API
     onSubmit: async (values, { resetForm }) => {
       setLoadBtn(true);
 
@@ -53,16 +62,15 @@ const Page = () => {
         redirect: "follow",
       };
 
-      // Fetch call to submit data
-      fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/login`, requestOptions)
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/registerAdmin`, requestOptions)
         .then((response) => response.json())
         .then((result) => {
+          console.log("result", result);
           if (result.status === "success") {
-            signIn(result.data);
             setLoadBtn(false);
             resetForm();
-            successMessage("Successfully logged in.");
-            router.push("/");
+            // successMessage(result.data.message);
+            successMessage("Reset Password Successfully.");
           }
 
           if (result.status === "fail") {
@@ -81,19 +89,13 @@ const Page = () => {
     },
   });
 
-  const handleMethodChange = useCallback((event, value) => {
-    setMethod(value);
-  }, []);
-
   return (
     <>
       <Head>
-        <title>Dashboard practice</title>
+        <title>Reset Password</title>
       </Head>
-
       <Box
         sx={{
-          backgroundColor: "background.paper",
           flex: "1 1 auto",
           alignItems: "center",
           display: "flex",
@@ -110,26 +112,11 @@ const Page = () => {
         >
           <div>
             <Stack spacing={1} sx={{ mb: 3 }}>
-              <Typography variant="h4">Login</Typography>
-              <Typography color="text.secondary" variant="body2">
-                Don&apos;t have an account? &nbsp;
-                <Link
-                  component={NextLink}
-                  href="/auth/register"
-                  underline="hover"
-                  variant="subtitle2"
-                >
-                  Register
-                </Link>
-              </Typography>
+              <Typography variant="h4">Reset password</Typography>
             </Stack>
-            <Tabs onChange={handleMethodChange} sx={{ mb: 3 }} value={method}>
-              <Tab label="Email" value="email" />
-              <Tab label="Phone Number" value="phoneNumber" />
-            </Tabs>
-
             <form noValidate onSubmit={formik.handleSubmit}>
-              <Stack spacing={3}>
+              <Stack container spacing={3}>
+                {/* Email input field */}
                 <TextField
                   error={!!(formik.touched.email && formik.errors.email)}
                   fullWidth
@@ -141,6 +128,8 @@ const Page = () => {
                   type="email"
                   value={formik.values.email}
                 />
+
+                {/* Password input field */}
                 <TextField
                   error={!!(formik.touched.password && formik.errors.password)}
                   fullWidth
@@ -149,39 +138,49 @@ const Page = () => {
                   name="password"
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
-                  type={showPassword ? "text" : "password"}
+                  type={showPassword1 ? "text" : "password"}
                   value={formik.values.password}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">
                         <IconButton
                           aria-label="toggle password visibility"
-                          onClick={handleTogglePasswordVisibility}
+                          onClick={handleTogglePasswordVisibility1}
                           edge="end"
                         >
-                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                          {showPassword1 ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+
+                {/* Confirm Password input field */}
+                <TextField
+                  error={!!(formik.touched.confirmpassword && formik.errors.confirmpassword)}
+                  fullWidth
+                  helperText={formik.touched.confirmpassword && formik.errors.confirmpassword}
+                  label="Confirm Password"
+                  name="confirmpassword"
+                  onBlur={formik.handleBlur}
+                  onChange={formik.handleChange}
+                  type={showPassword2 ? "text" : "password"}
+                  value={formik.values.confirmpassword}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleTogglePasswordVisibility2}
+                          edge="end"
+                        >
+                          {showPassword2 ? <Visibility /> : <VisibilityOff />}
                         </IconButton>
                       </InputAdornment>
                     ),
                   }}
                 />
               </Stack>
-
-              <Typography
-                sx={{ display: "flex", alignItems: "center" }}
-                color="text.secondary"
-                variant="body2"
-              >
-                <Typography sx={{ marginRight: 1 }}>Forgotten password</Typography>
-                <Link
-                  component={NextLink}
-                  href="/auth/forgotpassword"
-                  underline="hover"
-                  variant="subtitle2"
-                >
-                  Reset it
-                </Link>
-              </Typography>
 
               {formik.errors.submit && (
                 <Typography color="error" sx={{ mt: 3 }} variant="body2">
@@ -207,21 +206,10 @@ const Page = () => {
                     Loading...
                   </>
                 ) : (
-                  <>Login</>
+                  <>Submit</>
                 )}
               </Button>
             </form>
-
-            {method === "phoneNumber" && (
-              <div>
-                <Typography sx={{ mb: 1 }} variant="h6">
-                  Not available in the demo
-                </Typography>
-                <Typography color="text.secondary">
-                  To prevent unnecessary costs we disabled this feature in the demo.
-                </Typography>
-              </div>
-            )}
           </div>
         </Box>
       </Box>

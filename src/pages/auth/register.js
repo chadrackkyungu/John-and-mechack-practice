@@ -3,6 +3,8 @@ import { useState } from "react";
 import NextLink from "next/link";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { dangerMessage, successMessage, warningMessage } from "./../../components/toast";
+
 import {
   Box,
   Button,
@@ -20,6 +22,8 @@ import { Visibility, VisibilityOff } from "@material-ui/icons";
 const Page = () => {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+  const [loadBtn, setLoadBtn] = useState(false);
+  // const [successMsg, setSuccessMsg] = useState(false);
 
   const handleTogglePasswordVisibility1 = () => {
     setShowPassword1((prevShowPassword) => !prevShowPassword);
@@ -46,7 +50,7 @@ const Page = () => {
     }),
 
     onSubmit: async (values, { resetForm }) => {
-      // setLoadBtn(true);
+      setLoadBtn(true);
 
       var requestOptions = {
         method: "POST",
@@ -55,30 +59,29 @@ const Page = () => {
         redirect: "follow",
       };
 
-      // Fetch call to submit data
       fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/signupUser`, requestOptions)
         .then((response) => response.json())
         .then((result) => {
-          console.log("result ", result);
-          // if (result.status === "success") {
-          //   setLoadBtn(false);
-          //   resetForm();
-          //   successMessage(result.message);
-          //   setSuccessMsg(true);
-          // }
-          // if (result.status === "fail") {
-          //   warningMessage(result.message);
-          //   setLoadBtn(false);
-          // }
-          // if (result.status === "error") {
-          //   dangerMessage(result.data);
-          //   setLoadBtn(false);
-          // }
+          console.log("result", result);
+          if (result.status === "success") {
+            setLoadBtn(false);
+            resetForm();
+            successMessage(result.data.message);
+            // successMessage("Successfully Registered.");
+          }
+
+          if (result.status === "fail") {
+            warningMessage(result.message);
+            setLoadBtn(false);
+          }
+          if (result.status === "error") {
+            dangerMessage(result.data);
+            setLoadBtn(false);
+          }
         })
         .catch((error) => {
-          //   setLoadBtn(false);
-          //   dangerMessage(error);
-          console.log(" error : ", error);
+          setLoadBtn(false);
+          dangerMessage(error);
         });
     },
   });
@@ -86,7 +89,7 @@ const Page = () => {
   return (
     <>
       <Head>
-        <title>Register | Devias Kit</title>
+        <title>Register here</title>
       </Head>
       <Box
         sx={{
@@ -138,7 +141,7 @@ const Page = () => {
                   value={formik.values.email}
                 />
 
-                <Grid container>
+                <Grid>
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={12} md={6}>
                       <TextField
@@ -201,8 +204,27 @@ const Page = () => {
                   {formik.errors.submit}
                 </Typography>
               )}
-              <Button fullWidth size="large" sx={{ mt: 3 }} type="submit" variant="contained">
-                Login
+              <Button
+                fullWidth
+                size="large"
+                sx={{ mt: 3 }}
+                type="submit"
+                variant="contained"
+                onClick={formik.handleSubmit}
+                disabled={loadBtn}
+              >
+                {loadBtn ? (
+                  <>
+                    <span
+                      className="spinner-border spinner-border-sm mx-3"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
+                    Loading...
+                  </>
+                ) : (
+                  <>Register</>
+                )}
               </Button>
             </form>
           </div>
