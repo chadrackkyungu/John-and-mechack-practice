@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { dangerMessage, successMessage, warningMessage } from "./../../components/toast";
+
 import {
   Box,
   Button,
@@ -15,9 +16,6 @@ import {
 import { Layout as AuthLayout } from "src/layouts/auth/layout";
 import { Visibility, VisibilityOff } from "@material-ui/icons";
 
-// Import the email sending functionality
-import { sendPasswordResetEmail } from "./email"; // Adjust the import path as needed
-
 const Page = () => {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
@@ -25,18 +23,16 @@ const Page = () => {
   const handleTogglePasswordVisibility1 = () => {
     setShowPassword1((prevShowPassword) => !prevShowPassword);
   };
+  const [loadBtn, setLoadBtn] = useState(false);
 
   const handleTogglePasswordVisibility2 = () => {
     setShowPassword2((prevShowPassword) => !prevShowPassword);
   };
 
-  const [loadBtn, setLoadBtn] = useState(false);
-
   const formik = useFormik({
     initialValues: {
       password: "",
       confirmpassword: "",
-      email: "", // Add an email field for the user to enter their email
     },
 
     validationSchema: Yup.object({
@@ -45,10 +41,9 @@ const Page = () => {
         .max(255)
         .required("Password is required"),
       confirmpassword: Yup.string()
-        .password("Must be a valid email")
+        .confirmpassword("Must be a valid email")
         .max(255)
         .required("Confirm Password is required"),
-      email: Yup.string().email("Must be a valid email").max(255).required("Email is required"), // Add email validation
     }),
 
     // API
@@ -116,20 +111,6 @@ const Page = () => {
             </Stack>
             <form noValidate onSubmit={formik.handleSubmit}>
               <Stack container spacing={3}>
-                {/* Email input field */}
-                <TextField
-                  error={!!(formik.touched.email && formik.errors.email)}
-                  fullWidth
-                  helperText={formik.touched.email && formik.errors.email}
-                  label="Email Address"
-                  name="email"
-                  onBlur={formik.handleBlur}
-                  onChange={formik.handleChange}
-                  type="email"
-                  value={formik.values.email}
-                />
-
-                {/* Password input field */}
                 <TextField
                   error={!!(formik.touched.password && formik.errors.password)}
                   fullWidth
@@ -155,17 +136,16 @@ const Page = () => {
                   }}
                 />
 
-                {/* Confirm Password input field */}
                 <TextField
-                  error={!!(formik.touched.confirmpassword && formik.errors.confirmpassword)}
+                  error={!!(formik.touched.passwordConfirm && formik.errors.passwordConfirm)}
                   fullWidth
-                  helperText={formik.touched.confirmpassword && formik.errors.confirmpassword}
+                  helperText={formik.touched.passwordConfirm && formik.errors.passwordConfirm}
                   label="Confirm Password"
                   name="confirmpassword"
                   onBlur={formik.handleBlur}
                   onChange={formik.handleChange}
                   type={showPassword2 ? "text" : "password"}
-                  value={formik.values.confirmpassword}
+                  value={formik.values.passwordConfirm}
                   InputProps={{
                     endAdornment: (
                       <InputAdornment position="end">

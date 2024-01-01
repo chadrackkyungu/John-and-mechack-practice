@@ -23,7 +23,6 @@ const Page = () => {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
   const [loadBtn, setLoadBtn] = useState(false);
-  // const [successMsg, setSuccessMsg] = useState(false);
 
   const handleTogglePasswordVisibility1 = () => {
     setShowPassword1((prevShowPassword) => !prevShowPassword);
