@@ -1,4 +1,4 @@
-const customerData = [
+const data = [
   {
     id: "5e887ac47eed253091be10cb",
     address: {
@@ -140,4 +140,3 @@ const customerData = [
     phone: "801-301-7894",
   },
 ];
-export default customerData;
